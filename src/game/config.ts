@@ -4,7 +4,8 @@ export const GAME_CONFIG = {
         height: 700,
     },
     hero: {
-        radius: 20
+        radius: 20,
+        speed: 0.1
     }
 };
 
