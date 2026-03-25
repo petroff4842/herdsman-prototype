@@ -7,8 +7,9 @@ import { GAME_CONFIG } from "./config";
 export class Game {
     private app: Application;
     private hero: Hero;
-    private yard: Yard
+    private yard: Yard;
     private animals: Animal[] = [];
+    private followers: Animal[] = [];
 
     constructor(application: Application) {
         this.app = application;
@@ -40,6 +41,8 @@ export class Game {
     private setupLoop(): void {
         this.app.ticker.add(() => {
             this.hero.update();
+            this.collectAnimals();
+            this.updateFollowers();
         });
     }
 
@@ -90,5 +93,21 @@ export class Game {
                 return { x, y };
             }
         }
+    }
+
+    private collectAnimals(): void {
+		for (const animal of this.animals) {
+			const startedFollowing = animal.tryStartFollowing(this.hero, this.followers.length);
+
+            if (startedFollowing) {
+                this.followers.push(animal);
+            }
+        }
+    }
+
+    private updateFollowers(): void {
+        this.followers.forEach((animal, index) => {
+            animal.follow(this.hero, index);
+        });
     }
 }

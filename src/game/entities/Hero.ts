@@ -27,4 +27,20 @@ export class Hero {
         this.view.x += dx * GAME_CONFIG.hero.speed;
         this.view.y += dy * GAME_CONFIG.hero.speed;
     }
+
+    public getDirection(): { x: number; y: number } {
+        const dx = this.targetX - this.view.x;
+        const dy = this.targetY - this.view.y;
+
+        const length = Math.sqrt(dx * dx + dy * dy);
+
+        if (length === 0) {
+            return { x: 0, y: 0 };
+        }
+
+        return {
+            x: dx / length,
+            y: dy / length,
+        };
+    }
 }

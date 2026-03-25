@@ -14,7 +14,11 @@ export const GAME_CONFIG = {
     animal: {
         radius: 10,
 		count: 10,
-		boundPadding: 60
+		boundPadding: 60,
+		maxFollowers: 5,
+		pickupPadding: 20,
+		followSpacing: 40,
+		speed: 0.1
     }
 };
 
