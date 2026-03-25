@@ -6,10 +6,15 @@ export const GAME_CONFIG = {
     hero: {
         radius: 20,
         speed: 0.1
+    },
+    yard: {
+        width: 140,
+        height: 100
     }
 };
 
 export const COLORS = {
     background: "0x4caf50",
     hero: "0xff0000",
+    yard: "0xffff00"
 };
