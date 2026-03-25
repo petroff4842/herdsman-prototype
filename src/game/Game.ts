@@ -43,6 +43,7 @@ export class Game {
             this.hero.update();
             this.collectAnimals();
             this.updateFollowers();
+            this.checkDelivery();
         });
     }
 
@@ -110,4 +111,16 @@ export class Game {
             animal.follow(this.hero, index);
         });
     }
+
+    private checkDelivery(): void {
+		this.followers = this.followers.filter(animal => {
+			const isInYard = this.yard.contains(animal.view.x, animal.view.y);
+			if (isInYard) {
+				this.app.stage.removeChild(animal.view);
+				this.animals = this.animals.filter(a => a !== animal);
+				return false;
+			}
+			return true;
+		})
+	}
 }
