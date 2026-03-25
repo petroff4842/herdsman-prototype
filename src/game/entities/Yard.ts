@@ -6,7 +6,7 @@ export class Yard {
 
     constructor(x: number, y: number) {
         this.view = new Graphics();
-        this.view.rect(x, y, GAME_CONFIG.yard.width, GAME_CONFIG.yard.height);
+        this.view.rect(0, 0, GAME_CONFIG.yard.width, GAME_CONFIG.yard.height);
         this.view.fill(COLORS.yard);
         this.view.x = x;
         this.view.y = y;

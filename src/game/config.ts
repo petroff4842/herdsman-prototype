@@ -10,11 +10,17 @@ export const GAME_CONFIG = {
     yard: {
         width: 140,
         height: 100
+    },
+    animal: {
+        radius: 10,
+		count: 10,
+		boundPadding: 60
     }
 };
 
 export const COLORS = {
     background: "0x4caf50",
     hero: "0xff0000",
-    yard: "0xffff00"
+    yard: "0xffff00",
+    animal: '0xffffff'
 };
