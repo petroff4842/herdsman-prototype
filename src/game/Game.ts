@@ -3,6 +3,7 @@ import { Hero } from "./entities/Hero";
 import { Yard } from "./entities/Yard";
 import { Animal } from "./entities/Animal";
 import { GAME_CONFIG } from "./config";
+import { ScoreUI } from "./ui/ScoreUI";
 
 export class Game {
     private app: Application;
@@ -10,11 +11,13 @@ export class Game {
     private yard: Yard;
     private animals: Animal[] = [];
     private followers: Animal[] = [];
+    private scoreUI: ScoreUI;
 
     constructor(application: Application) {
         this.app = application;
         this.hero = new Hero(this.app.renderer.width / 2, this.app.renderer.height / 2);
         this.yard = new Yard(0, 0);
+        this.scoreUI = new ScoreUI();
 
         this.setupScene();
         this.setupInput();
@@ -25,6 +28,7 @@ export class Game {
     private setupScene(): void {
         this.app.stage.addChild(this.yard.view);
         this.app.stage.addChild(this.hero.view);
+        this.app.stage.addChild(this.scoreUI.view);
     }
 
     private setupInput(): void {
@@ -43,7 +47,7 @@ export class Game {
             this.hero.update();
             this.collectAnimals();
             this.updateFollowers();
-            this.checkDelivery();
+            this.deliverAnimals();
         });
     }
 
@@ -112,12 +116,13 @@ export class Game {
         });
     }
 
-    private checkDelivery(): void {
+    private deliverAnimals(): void {
 		this.followers = this.followers.filter(animal => {
 			const isInYard = this.yard.contains(animal.view.x, animal.view.y);
 			if (isInYard) {
 				this.app.stage.removeChild(animal.view);
 				this.animals = this.animals.filter(a => a !== animal);
+                this.scoreUI.increment();
 				return false;
 			}
 			return true;

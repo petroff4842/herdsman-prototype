@@ -19,12 +19,18 @@ export const GAME_CONFIG = {
 		pickupPadding: 20,
 		followSpacing: 40,
 		speed: 0.1
-    }
+    },
+	score: {
+		x: 20,
+		y: 20,
+		fontSize: 24
+	}
 };
 
 export const COLORS = {
     background: "0x4caf50",
     hero: "0xff0000",
     yard: "0xffff00",
-    animal: '0xffffff'
+    animal: '0xffffff',
+	text: '0x000000'
 };
