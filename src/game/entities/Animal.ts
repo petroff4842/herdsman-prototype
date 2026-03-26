@@ -1,6 +1,15 @@
 import { Graphics } from 'pixi.js';
 import { GAME_CONFIG, COLORS } from '../config';
-import { Hero } from './Hero';
+
+type Point = {
+    x: number;
+    y: number;
+};
+
+type Vector = {
+    x: number;
+    y: number;
+};
 
 export type AnimalState = 'idle' | 'following';
 export class Animal {
@@ -15,14 +24,14 @@ export class Animal {
         this.view.y = y;
     }
 
-    public tryStartFollowing(hero: Hero, followersCount: number): boolean {
+    public tryStartFollowing(heroPosition: Point, followersCount: number): boolean {
         if (this.state !== 'idle' ||
             followersCount >= GAME_CONFIG.animal.maxFollowers) {
                 return false;
         }
 
-        const dx = hero.view.x - this.view.x;
-        const dy = hero.view.y - this.view.y;
+        const dx = heroPosition.x - this.view.x;
+        const dy = heroPosition.y - this.view.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         const pickupDistance = GAME_CONFIG.hero.radius + GAME_CONFIG.animal.radius + GAME_CONFIG.animal.pickupPadding;
@@ -35,14 +44,13 @@ export class Animal {
         return false;
     }
 
-    public follow(hero: Hero, index: number): void {
+    public follow(targetPosition: Point, direction: Vector, index: number): void {
         if (this.state !== 'following') return;
 
-        const dir = hero.getDirection();
         const spacing = GAME_CONFIG.animal.followSpacing;
 
-        const targetX = hero.view.x - dir.x * (index + 1) * spacing;
-        const targetY = hero.view.y - dir.y * (index + 1) * spacing;
+        const targetX = targetPosition.x - direction.x * (index + 1) * spacing;
+        const targetY = targetPosition.y - direction.y * (index + 1) * spacing;
 
         const dx = targetX - this.view.x;
         const dy = targetY - this.view.y;

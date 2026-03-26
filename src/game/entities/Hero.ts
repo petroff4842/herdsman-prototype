@@ -42,6 +42,13 @@ export class Hero {
         this.view.y += dy * GAME_CONFIG.hero.speed;
     }
 
+    public getPosition(): { x: number; y: number } {
+        return {
+            x: this.view.x,
+            y: this.view.y,
+        };
+    }
+
     public getDirection(): { x: number; y: number } {
         return this.direction;
     }

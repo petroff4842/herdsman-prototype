@@ -97,8 +97,9 @@ export class Game {
     }
 
     private collectAnimals(): void {
-		for (const animal of this.animals) {
-			const startedFollowing = animal.tryStartFollowing(this.hero, this.followers.length);
+        const heroPosition = this.hero.getPosition();
+        for (const animal of this.animals) {
+            const startedFollowing = animal.tryStartFollowing(heroPosition, this.followers.length);
 
             if (startedFollowing) {
                 this.followers.push(animal);
@@ -107,8 +108,10 @@ export class Game {
     }
 
     private updateFollowers(): void {
+        const heroPosition = this.hero.getPosition();
+        const heroDirection = this.hero.getDirection();
         this.followers.forEach((animal, index) => {
-            animal.follow(this.hero, index);
+            animal.follow(heroPosition, heroDirection, index);
         });
     }
 
@@ -116,17 +119,17 @@ export class Game {
         const delivered = new Set(this.followers.filter(animal => {
             return this.yard.contains(animal.view.x, animal.view.y);
         }))
-        
-        if(delivered.size === 0) {
+
+        if (delivered.size === 0) {
             return;
         }
 
         this.followers = this.followers.filter(animal => !delivered.has(animal));
         this.animals = this.animals.filter(animal => !delivered.has(animal));
 
-		delivered.forEach(animal => {
+        delivered.forEach(animal => {
             this.app.stage.removeChild(animal.view);
             this.scoreUI.increment();
         })
-	}
+    }
 }
