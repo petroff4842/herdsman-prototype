@@ -1,30 +1,22 @@
 import { Graphics } from 'pixi.js';
 import { GAME_CONFIG, COLORS } from '../config';
-
-type Point = {
-    x: number;
-    y: number;
-};
-
-type Vector = {
-    x: number;
-    y: number;
-};
+import type { Position } from '../types/Position';
+import type { Vector } from '../types/Vector';
 
 export type AnimalState = 'idle' | 'following';
 export class Animal {
     public view: Graphics;
     public state: AnimalState = 'idle';
 
-    constructor(x: number, y: number) {
+    constructor(position: Position) {
         this.view = new Graphics();
         this.view.circle(0, 0, GAME_CONFIG.animal.radius);
         this.view.fill(COLORS.animal);
-        this.view.x = x;
-        this.view.y = y;
+        this.view.x = position.x;
+        this.view.y = position.y;
     }
 
-    public tryStartFollowing(heroPosition: Point, followersCount: number): boolean {
+    public tryStartFollowing(heroPosition: Position, followersCount: number): boolean {
         if (this.state !== 'idle' ||
             followersCount >= GAME_CONFIG.animal.maxFollowers) {
                 return false;
@@ -44,7 +36,7 @@ export class Animal {
         return false;
     }
 
-    public follow(targetPosition: Point, direction: Vector, index: number): void {
+    public follow(targetPosition: Position, direction: Vector, index: number): void {
         if (this.state !== 'following') return;
 
         const spacing = GAME_CONFIG.animal.followSpacing;

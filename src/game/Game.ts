@@ -4,6 +4,7 @@ import { Yard } from "./entities/Yard";
 import { Animal } from "./entities/Animal";
 import { GAME_CONFIG } from "./config";
 import { ScoreUI } from "./ui/ScoreUI";
+import { AnimalSpawner } from "./systems/AnimalSpawner";
 
 export class Game {
     private app: Application;
@@ -12,12 +13,14 @@ export class Game {
     private animals: Animal[] = [];
     private followers: Animal[] = [];
     private scoreUI: ScoreUI;
+    private animalSpawner: AnimalSpawner;
 
     constructor(application: Application) {
         this.app = application;
         this.hero = new Hero(this.app.renderer.width / 2, this.app.renderer.height / 2);
         this.yard = new Yard(0, 0);
         this.scoreUI = new ScoreUI();
+        this.animalSpawner = new AnimalSpawner(this.app.renderer.width, this.app.renderer.height);
 
         this.setupScene();
         this.setupInput();
@@ -44,55 +47,34 @@ export class Game {
 
     private setupLoop(): void {
         this.app.ticker.add(() => {
+
+            const delta = this.app.ticker.deltaMS / 1000;
+
             this.hero.update();
             this.collectAnimals();
             this.updateFollowers();
             this.deliverAnimals();
+            this.trySpawnAnimal(delta);
         });
+    }
+
+    private trySpawnAnimal(delta: number): void {
+        const animal = this.animalSpawner.update(delta, this.hero.getPosition(), this.yard, this.animals);
+        if (!animal) {
+            return;
+        }
+        this.animals.push(animal);
+        this.app.stage.addChild(animal.view);
     }
 
     private createAnimals(): void {
         for (let i = 0; i < GAME_CONFIG.animal.count; i++) {
-            const animalPosition = this.getRandomAnimalPosition();
-            const animal = new Animal(animalPosition.x, animalPosition.y);
+            const animal = this.animalSpawner.spawnNow(this.hero.getPosition(), this.yard, this.animals)
+            if (!animal) {
+                break;
+            }
             this.animals.push(animal);
             this.app.stage.addChild(animal.view);
-        }
-    }
-
-    private getRandomAnimalPosition(): { x: number; y: number } {
-        const padding = GAME_CONFIG.animal.boundPadding;
-
-        while (true) {
-            // indents from field's borders
-            const x = padding + Math.random() * (this.app.renderer.width - padding * 2);
-            const y = padding + Math.random() * (this.app.renderer.height - padding * 2);
-
-            // check if animal is inside the yard including padding
-            const isInsideYard = this.yard.contains(x, y, padding);
-
-            // check if animal is to close to Hero including padding
-            const dx = x - this.hero.view.x;
-            const dy = y - this.hero.view.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-
-            const minDistance = GAME_CONFIG.hero.radius + padding;
-            const isTooCloseToHero = distance < minDistance;
-
-            // check if animals are too close to each other
-            const isTooCloseToOtherAnimals = this.animals.some((animal) => {
-                const dx = x - animal.view.x;
-                const dy = y - animal.view.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-
-                const minDistance = GAME_CONFIG.animal.radius + padding;
-
-                return distance < minDistance;
-            });
-
-            if (!isInsideYard && !isTooCloseToHero && !isTooCloseToOtherAnimals) {
-                return { x, y };
-            }
         }
     }
 

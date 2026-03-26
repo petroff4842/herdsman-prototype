@@ -14,16 +14,22 @@ export const GAME_CONFIG = {
     animal: {
         radius: 10,
 		count: 10,
-		boundPadding: 60,
+		boundPadding: 30,
 		maxFollowers: 5,
 		pickupPadding: 20,
 		followSpacing: 40,
-		speed: 0.1
+		speed: 0.1,
+		maxCountOnField: 50
     },
 	score: {
 		x: 20,
 		y: 20,
 		fontSize: 24
+	},
+	spawner: {
+        minInterval: 1,
+        maxInterval: 4,
+        maxSpawnAttempts: 50,
 	}
 };
 

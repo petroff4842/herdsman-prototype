@@ -1,11 +1,13 @@
 import { Graphics } from "pixi.js";
 import { GAME_CONFIG, COLORS } from "../config";
+import type { Position } from "../types/Position";
+import type { Vector } from "../types/Vector";
 
 export class Hero {
     public view: Graphics;
     private targetX: number;
     private targetY: number;
-    private direction = { x: 0, y: 0 };
+    private direction: Vector = { x: 0, y: 0 };
 
     constructor(x: number, y: number) {
         this.view = new Graphics();
@@ -42,14 +44,14 @@ export class Hero {
         this.view.y += dy * GAME_CONFIG.hero.speed;
     }
 
-    public getPosition(): { x: number; y: number } {
+    public getPosition(): Position {
         return {
             x: this.view.x,
             y: this.view.y,
         };
     }
 
-    public getDirection(): { x: number; y: number } {
+    public getDirection(): Vector {
         return this.direction;
     }
 }
