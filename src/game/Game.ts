@@ -69,11 +69,7 @@ export class Game {
             const y = padding + Math.random() * (this.app.renderer.height - padding * 2);
 
             // check if animal is inside the yard including padding
-            const isInsideYard =
-                x > this.yard.view.x - padding &&
-                x < this.yard.view.x + GAME_CONFIG.yard.width + padding &&
-                y > this.yard.view.y - padding &&
-                y < this.yard.view.y + GAME_CONFIG.yard.height + padding;
+            const isInsideYard = this.yard.contains(x, y, padding);
 
             // check if animal is to close to Hero including padding
             const dx = x - this.hero.view.x;
@@ -117,15 +113,20 @@ export class Game {
     }
 
     private deliverAnimals(): void {
-		this.followers = this.followers.filter(animal => {
-			const isInYard = this.yard.contains(animal.view.x, animal.view.y);
-			if (isInYard) {
-				this.app.stage.removeChild(animal.view);
-				this.animals = this.animals.filter(a => a !== animal);
-                this.scoreUI.increment();
-				return false;
-			}
-			return true;
-		})
+        const delivered = new Set(this.followers.filter(animal => {
+            return this.yard.contains(animal.view.x, animal.view.y);
+        }))
+        
+        if(delivered.size === 0) {
+            return;
+        }
+
+        this.followers = this.followers.filter(animal => !delivered.has(animal));
+        this.animals = this.animals.filter(animal => !delivered.has(animal));
+
+		delivered.forEach(animal => {
+            this.app.stage.removeChild(animal.view);
+            this.scoreUI.increment();
+        })
 	}
 }

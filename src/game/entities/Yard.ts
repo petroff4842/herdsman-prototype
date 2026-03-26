@@ -12,10 +12,10 @@ export class Yard {
         this.view.y = y;
     }
 
-    public contains(x: number, y: number): boolean {
-        return x >= this.view.x &&
-            x <= this.view.x + GAME_CONFIG.yard.width &&
-            y >= this.view.y &&
-            y <= this.view.y + GAME_CONFIG.yard.height
+    public contains(x: number, y: number, padding: number = 0): boolean {
+        return x >= this.view.x - padding &&
+            x <= this.view.x + GAME_CONFIG.yard.width + padding &&
+            y >= this.view.y - padding &&
+            y <= this.view.y + GAME_CONFIG.yard.height + padding;
     }
 }

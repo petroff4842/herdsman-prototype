@@ -5,6 +5,7 @@ export class Hero {
     public view: Graphics;
     private targetX: number;
     private targetY: number;
+    private direction = { x: 0, y: 0 };
 
     constructor(x: number, y: number) {
         this.view = new Graphics();
@@ -24,23 +25,24 @@ export class Hero {
     public update(): void {
         const dx = this.targetX - this.view.x;
         const dy = this.targetY - this.view.y;
+
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < 1) {
+            this.view.x = this.targetX;
+            this.view.y = this.targetY;
+            return;
+        }
+
+        this.direction = {
+            x: dx / distance,
+            y: dy / distance,
+        };
+
         this.view.x += dx * GAME_CONFIG.hero.speed;
         this.view.y += dy * GAME_CONFIG.hero.speed;
     }
 
     public getDirection(): { x: number; y: number } {
-        const dx = this.targetX - this.view.x;
-        const dy = this.targetY - this.view.y;
-
-        const length = Math.sqrt(dx * dx + dy * dy);
-
-        if (length === 0) {
-            return { x: 0, y: 0 };
-        }
-
-        return {
-            x: dx / length,
-            y: dy / length,
-        };
+        return this.direction;
     }
 }
