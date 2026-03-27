@@ -21,9 +21,9 @@ export const GAME_CONFIG = {
 		maxFollowers: 5,
 		pickupPadding: 20,
 		followSpacing: 40,
-		speed: 0.1,
+		speed: 200,
 		maxCountOnField: 50,
-        patrolSpeed: 0.03,
+        patrolSpeed: 20,
         reachTargetThreshold: 5
     },
 	score: {

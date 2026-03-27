@@ -44,7 +44,7 @@ export class Animal {
         return false;
     }
 
-    public follow(targetPosition: Position, direction: Vector, index: number): void {
+    public follow(targetPosition: Position, direction: Vector, index: number, delta: number): void {
         if (this.state !== 'following') return;
 
         const spacing = GAME_CONFIG.animal.followSpacing;
@@ -54,9 +54,21 @@ export class Animal {
 
         const dx = targetX - this.view.x;
         const dy = targetY - this.view.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
 
-        this.view.x += dx * GAME_CONFIG.animal.speed;
-        this.view.y += dy * GAME_CONFIG.animal.speed;
+        if (distance < GAME_CONFIG.animal.reachTargetThreshold) {
+            this.view.x = targetX;
+            this.view.y = targetY;
+            return;
+        }
+
+        const dirX = dx / distance;
+        const dirY = dy / distance;
+
+        const step = Math.min(GAME_CONFIG.animal.speed * delta, distance);
+
+        this.view.x += dirX * step;
+        this.view.y += dirY * step;
     }
 
     public update(delta: number, avoidHeroPosition: Position, isHeroFull: boolean): void {
@@ -73,8 +85,13 @@ export class Animal {
             return;
         }
 
-        const nextX = this.view.x + dx * GAME_CONFIG.animal.patrolSpeed * delta;
-        const nextY = this.view.y + dy * GAME_CONFIG.animal.patrolSpeed * delta;
+        const dirX = dx / distance;
+        const dirY = dy / distance;
+
+        const step = Math.min(GAME_CONFIG.animal.patrolSpeed * delta, distance);
+
+        const nextX = this.view.x + dirX * step;
+        const nextY = this.view.y + dirY * step;
 
         // avoidance of the yard area        
         if (this.isInsideYardFn(nextX, nextY, GAME_CONFIG.animal.boundPadding)) {

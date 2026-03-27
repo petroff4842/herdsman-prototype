@@ -55,7 +55,7 @@ export class Game {
             const heroPosition = this.hero.getPosition();
             this.animals.forEach(animal => animal.update(delta, heroPosition, this.followers.length >= GAME_CONFIG.animal.maxFollowers));
             this.collectAnimals();
-            this.updateFollowers();
+            this.updateFollowers(delta);
             this.deliverAnimals();
             this.trySpawnAnimal(delta);
         });
@@ -92,11 +92,11 @@ export class Game {
         }
     }
 
-    private updateFollowers(): void {
+    private updateFollowers(delta: number): void {
         const heroPosition = this.hero.getPosition();
         const heroDirection = this.hero.getDirection();
         this.followers.forEach((animal, index) => {
-            animal.follow(heroPosition, heroDirection, index);
+            animal.follow(heroPosition, heroDirection, index, delta);
         });
     }
 
