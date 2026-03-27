@@ -29,7 +29,7 @@ export class Hero {
         const dy = this.targetY - this.view.y;
 
         const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance < 1) {
+        if (distance < GAME_CONFIG.hero.reachTargetThreshold) {
             this.view.x = this.targetX;
             this.view.y = this.targetY;
             return;

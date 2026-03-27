@@ -18,7 +18,7 @@ export class Game {
     constructor(application: Application) {
         this.app = application;
         this.hero = new Hero(this.app.renderer.width / 2, this.app.renderer.height / 2);
-        this.yard = new Yard(0, 0);
+        this.yard = new Yard(GAME_CONFIG.yard.x, GAME_CONFIG.yard.y);
         this.scoreUI = new ScoreUI();
         this.animalSpawner = new AnimalSpawner(this.app.renderer.width, this.app.renderer.height);
 
@@ -51,6 +51,10 @@ export class Game {
             const delta = this.app.ticker.deltaMS / 1000;
 
             this.hero.update();
+
+            const heroPosition = this.hero.getPosition();
+            this.animals.forEach(animal => animal.update(delta, heroPosition));
+            
             this.collectAnimals();
             this.updateFollowers();
             this.deliverAnimals();

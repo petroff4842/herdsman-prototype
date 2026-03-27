@@ -43,7 +43,7 @@ export class AnimalSpawner {
 			return null;
 		}
 
-		return new Animal(position);
+		return new Animal(position, yard.contains.bind(yard));
 	}
 
 	private getRandomAnimalPosition(heroPosition: Position, animals: Animal[], yard: Yard): Position | null {
@@ -56,14 +56,20 @@ export class AnimalSpawner {
 
 			// check if animal is inside the yard including padding
 			const isInsideYard = yard.contains(x, y, padding);
+			if (isInsideYard) {
+				continue;
+			}
 
 			// check if animal is to close to Hero including padding
 			const dx = x - heroPosition.x;
 			const dy = y - heroPosition.y;
 			const distance = Math.sqrt(dx * dx + dy * dy);
 
-			const minDistance = GAME_CONFIG.hero.radius + GAME_CONFIG.animal.radius + padding ;
+			const minDistance = GAME_CONFIG.hero.radius + GAME_CONFIG.animal.radius + padding;
 			const isTooCloseToHero = distance < minDistance;
+			if (isTooCloseToHero) {
+				continue;
+			}
 
 			// check if animals are too close to each other
 			const isTooCloseToOtherAnimals = animals.some((animal) => {
@@ -76,7 +82,7 @@ export class AnimalSpawner {
 				return distance < minDistance;
 			});
 
-			if (!isInsideYard && !isTooCloseToHero && !isTooCloseToOtherAnimals) {
+			if (!isTooCloseToOtherAnimals) {
 				return { x, y };
 			}
 		}

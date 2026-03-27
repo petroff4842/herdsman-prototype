@@ -5,9 +5,12 @@ export const GAME_CONFIG = {
     },
     hero: {
         radius: 20,
-        speed: 0.1
+        speed: 0.1,
+        reachTargetThreshold: 2
     },
     yard: {
+        x: 0,
+        y: 0,
         width: 140,
         height: 100
     },
@@ -19,7 +22,9 @@ export const GAME_CONFIG = {
 		pickupPadding: 20,
 		followSpacing: 40,
 		speed: 0.1,
-		maxCountOnField: 50
+		maxCountOnField: 50,
+        patrolSpeed: 0.03,
+        reachTargetThreshold: 5
     },
 	score: {
 		x: 20,
