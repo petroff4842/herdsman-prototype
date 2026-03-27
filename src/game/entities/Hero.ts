@@ -24,7 +24,7 @@ export class Hero {
         this.targetY = y;
     }
 
-    public update(): void {
+    public update(delta: number): void {
         const dx = this.targetX - this.view.x;
         const dy = this.targetY - this.view.y;
 
@@ -40,8 +40,10 @@ export class Hero {
             y: dy / distance,
         };
 
-        this.view.x += dx * GAME_CONFIG.hero.speed;
-        this.view.y += dy * GAME_CONFIG.hero.speed;
+        const step = Math.min(GAME_CONFIG.hero.speed * delta, distance);
+
+        this.view.x += this.direction.x * step;
+        this.view.y += this.direction.y * step;
     }
 
     public getPosition(): Position {

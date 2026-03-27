@@ -59,7 +59,7 @@ export class Animal {
         this.view.y += dy * GAME_CONFIG.animal.speed;
     }
 
-    public update(delta: number, avoidHeroPosition: Position): void {
+    public update(delta: number, avoidHeroPosition: Position, isHeroFull: boolean): void {
         if (this.state !== 'idle') {
             return;
         }
@@ -87,11 +87,11 @@ export class Animal {
         const heroDy = nextY - avoidHeroPosition.y;
         const distanceToHero = Math.sqrt(heroDx * heroDx + heroDy * heroDy);
         const minDistanceToHero = GAME_CONFIG.hero.radius + GAME_CONFIG.animal.radius + GAME_CONFIG.animal.boundPadding
-        if (distanceToHero < minDistanceToHero) {
+        if (distanceToHero < minDistanceToHero && !isHeroFull) {
             this.getRandomPatrolTarget(GAME_CONFIG.size.width, GAME_CONFIG.size.height);
             return;
         }
-        
+
         this.view.x = nextX;
         this.view.y = nextY;
     }

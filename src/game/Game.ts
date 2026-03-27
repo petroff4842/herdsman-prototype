@@ -50,11 +50,10 @@ export class Game {
 
             const delta = this.app.ticker.deltaMS / 1000;
 
-            this.hero.update();
-
-            const heroPosition = this.hero.getPosition();
-            this.animals.forEach(animal => animal.update(delta, heroPosition));
+            this.hero.update(delta);
             
+            const heroPosition = this.hero.getPosition();
+            this.animals.forEach(animal => animal.update(delta, heroPosition, this.followers.length >= GAME_CONFIG.animal.maxFollowers));
             this.collectAnimals();
             this.updateFollowers();
             this.deliverAnimals();

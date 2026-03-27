@@ -5,7 +5,7 @@ export const GAME_CONFIG = {
     },
     hero: {
         radius: 20,
-        speed: 0.1,
+        speed: 200,
         reachTargetThreshold: 2
     },
     yard: {
