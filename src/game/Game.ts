@@ -5,6 +5,8 @@ import { Animal } from "./entities/Animal";
 import { GAME_CONFIG } from "./config";
 import { ScoreUI } from "./ui/ScoreUI";
 import { AnimalSpawner } from "./systems/AnimalSpawner";
+import { EventEmitter } from "./core/EventEmitter";
+import type { GameEvents } from "./types/GameEvents";
 
 export class Game {
     private app: Application;
@@ -14,12 +16,14 @@ export class Game {
     private followers: Animal[] = [];
     private scoreUI: ScoreUI;
     private animalSpawner: AnimalSpawner;
+    private emitter: EventEmitter<GameEvents>;
 
     constructor(application: Application) {
         this.app = application;
+        this.emitter = new EventEmitter<GameEvents>();
         this.hero = new Hero(this.app.renderer.width / 2, this.app.renderer.height / 2);
         this.yard = new Yard(GAME_CONFIG.yard.x, GAME_CONFIG.yard.y);
-        this.scoreUI = new ScoreUI();
+        this.scoreUI = new ScoreUI(this.emitter);
         this.animalSpawner = new AnimalSpawner(this.app.renderer.width, this.app.renderer.height);
 
         this.setupScene();
@@ -114,7 +118,7 @@ export class Game {
 
         delivered.forEach(animal => {
             this.app.stage.removeChild(animal.view);
-            this.scoreUI.increment();
+            this.emitter.emit('animal:delivered', { animal });
         })
     }
 }
