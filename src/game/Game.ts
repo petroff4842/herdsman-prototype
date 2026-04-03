@@ -7,6 +7,7 @@ import { ScoreUI } from "./ui/ScoreUI";
 import { AnimalSpawner } from "./systems/AnimalSpawner";
 import { EventEmitter } from "./core/EventEmitter";
 import type { GameEvents } from "./types/GameEvents";
+import { MoveToCommand } from "./core/Command";
 
 export class Game {
     private app: Application;
@@ -45,7 +46,8 @@ export class Game {
             const x = event.clientX - rect.left;
             const y = event.clientY - rect.top;
 
-            this.hero.moveTo(x, y);
+            const command = new MoveToCommand((x: number, y: number) => this.hero.moveTo(x, y), x, y);
+            command.execute();
         });
     }
 
