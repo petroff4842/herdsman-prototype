@@ -2,6 +2,9 @@ import { Graphics } from 'pixi.js';
 import { GAME_CONFIG, COLORS } from '../config';
 import type { Position } from '../types/Position';
 import type { Vector } from '../types/Vector';
+import { AnimalStateMachine, IdleState } from '../states/AnimalStateMachine';
+import type { GameEvents } from '../types/GameEvents';
+import { EventEmitter } from "../core/EventEmitter";
 
 type IsInsideYard = (x: number, y: number, padding?: number) => boolean;
 
@@ -12,9 +15,14 @@ export class Animal {
     public state: AnimalState = 'idle';
     private patrolTarget: Position;
     private isInsideYardFn: IsInsideYard;
+    private heroPosition: Position;
+    private stateMachine: AnimalStateMachine;
+    public isHeroFull: boolean = false;
 
-    constructor(position: Position, isInsideYard: IsInsideYard) {
+    constructor(position: Position, isInsideYard: IsInsideYard, emitter: EventEmitter<GameEvents>) {
         this.view = new Graphics();
+        this.heroPosition = { x: 0, y: 0 };
+        this.stateMachine = new AnimalStateMachine(new IdleState(), emitter);
         this.view.circle(0, 0, GAME_CONFIG.animal.radius);
         this.view.fill(COLORS.animal);
         this.view.x = position.x;
@@ -22,26 +30,6 @@ export class Animal {
         this.patrolTarget = position;
         this.isInsideYardFn = isInsideYard;
         this.getRandomPatrolTarget(GAME_CONFIG.size.width, GAME_CONFIG.size.height);
-    }
-
-    public tryStartFollowing(heroPosition: Position, followersCount: number): boolean {
-        if (this.state !== 'idle' ||
-            followersCount >= GAME_CONFIG.animal.maxFollowers) {
-            return false;
-        }
-
-        const dx = heroPosition.x - this.view.x;
-        const dy = heroPosition.y - this.view.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        const pickupDistance = GAME_CONFIG.hero.radius + GAME_CONFIG.animal.radius + GAME_CONFIG.animal.pickupPadding;
-
-        if (distance <= pickupDistance) {
-            this.state = 'following';
-            return true;
-        }
-
-        return false;
     }
 
     public follow(targetPosition: Position, direction: Vector, index: number, delta: number): void {
@@ -72,14 +60,27 @@ export class Animal {
     }
 
     public update(delta: number, avoidHeroPosition: Position, isHeroFull: boolean): void {
+        this.heroPosition = avoidHeroPosition;
+        this.isHeroFull = isHeroFull;
         if (this.state !== 'idle') {
             return;
         }
+        this.stateMachine.update(this, delta);
+    }
 
+    public getRandomPatrolTarget(width: number, height: number): void {
+        const padding = GAME_CONFIG.animal.boundPadding;
+        this.patrolTarget = {
+            x: padding + Math.random() * (width - padding * 2),
+            y: padding + Math.random() * (height - padding * 2)
+        };
+    }
+
+    public patrol(delta: number): void {
         const dx = this.patrolTarget.x - this.view.x;
         const dy = this.patrolTarget.y - this.view.y;
-
         const distance = Math.sqrt(dx * dx + dy * dy);
+
         if (distance < GAME_CONFIG.animal.reachTargetThreshold) {
             this.getRandomPatrolTarget(GAME_CONFIG.size.width, GAME_CONFIG.size.height);
             return;
@@ -87,37 +88,35 @@ export class Animal {
 
         const dirX = dx / distance;
         const dirY = dy / distance;
-
         const step = Math.min(GAME_CONFIG.animal.patrolSpeed * delta, distance);
 
         const nextX = this.view.x + dirX * step;
         const nextY = this.view.y + dirY * step;
 
-        // avoidance of the yard area        
+        // yard area avoidance
         if (this.isInsideYardFn(nextX, nextY, GAME_CONFIG.animal.boundPadding)) {
             this.getRandomPatrolTarget(GAME_CONFIG.size.width, GAME_CONFIG.size.height);
             return;
         }
 
-        //avoidance Hero
-        const heroDx = nextX - avoidHeroPosition.x;
-        const heroDy = nextY - avoidHeroPosition.y;
-        const distanceToHero = Math.sqrt(heroDx * heroDx + heroDy * heroDy);
-        const minDistanceToHero = GAME_CONFIG.hero.radius + GAME_CONFIG.animal.radius + GAME_CONFIG.animal.boundPadding
-        if (distanceToHero < minDistanceToHero && !isHeroFull) {
-            this.getRandomPatrolTarget(GAME_CONFIG.size.width, GAME_CONFIG.size.height);
-            return;
+        // Hero avoidance
+        if (!this.isHeroFull) {
+            const heroDx = nextX - this.heroPosition.x;
+            const heroDy = nextY - this.heroPosition.y;
+            const distanceToHero = Math.sqrt(heroDx * heroDx + heroDy * heroDy);
+            const minDistanceToHero = GAME_CONFIG.hero.radius + GAME_CONFIG.animal.radius + GAME_CONFIG.animal.boundPadding;
+
+            if (distanceToHero < minDistanceToHero) {
+                this.getRandomPatrolTarget(GAME_CONFIG.size.width, GAME_CONFIG.size.height);
+                return;
+            }
         }
 
         this.view.x = nextX;
         this.view.y = nextY;
     }
 
-    private getRandomPatrolTarget(width: number, height: number): void {
-        const padding = GAME_CONFIG.animal.boundPadding;
-        this.patrolTarget = {
-            x: padding + Math.random() * (width - padding * 2),
-            y: padding + Math.random() * (height - padding * 2)
-        };
+    getHeroPosition(): Position {
+        return this.heroPosition;
     }
 }

@@ -22,10 +22,15 @@ export class Game {
     constructor(application: Application) {
         this.app = application;
         this.emitter = new EventEmitter<GameEvents>();
+		this.emitter.on('animal:collected', ({ animal }) => {
+			if (this.followers.length < GAME_CONFIG.animal.maxFollowers) {
+				this.followers.push(animal);
+			}
+		});
         this.hero = new Hero(this.app.renderer.width / 2, this.app.renderer.height / 2);
         this.yard = new Yard(GAME_CONFIG.yard.x, GAME_CONFIG.yard.y);
         this.scoreUI = new ScoreUI(this.emitter);
-        this.animalSpawner = new AnimalSpawner(this.app.renderer.width, this.app.renderer.height);
+        this.animalSpawner = new AnimalSpawner(this.app.renderer.width, this.app.renderer.height, this.emitter);
 
         this.setupScene();
         this.setupInput();
@@ -57,10 +62,8 @@ export class Game {
             const delta = this.app.ticker.deltaMS / 1000;
 
             this.hero.update(delta);
-            
             const heroPosition = this.hero.getPosition();
             this.animals.forEach(animal => animal.update(delta, heroPosition, this.followers.length >= GAME_CONFIG.animal.maxFollowers));
-            this.collectAnimals();
             this.updateFollowers(delta);
             this.deliverAnimals();
             this.trySpawnAnimal(delta);
@@ -87,17 +90,6 @@ export class Game {
         }
     }
 
-    private collectAnimals(): void {
-        const heroPosition = this.hero.getPosition();
-        for (const animal of this.animals) {
-            const startedFollowing = animal.tryStartFollowing(heroPosition, this.followers.length);
-
-            if (startedFollowing) {
-                this.followers.push(animal);
-            }
-        }
-    }
-
     private updateFollowers(delta: number): void {
         const heroPosition = this.hero.getPosition();
         const heroDirection = this.hero.getDirection();
@@ -120,7 +112,7 @@ export class Game {
 
         delivered.forEach(animal => {
             this.app.stage.removeChild(animal.view);
-            this.emitter.emit('animal:delivered', { animal });
+            this.emitter.emit('animal:scored', { animal });
         })
     }
 }

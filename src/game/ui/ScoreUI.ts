@@ -19,7 +19,7 @@ export class ScoreUI {
 		this.view.x = GAME_CONFIG.score.x;
 		this.view.y = GAME_CONFIG.score.y;
 
-		emitter.on('animal:delivered', () => this.increment());
+		emitter.on('animal:scored', () => this.increment());
 	}
 
 

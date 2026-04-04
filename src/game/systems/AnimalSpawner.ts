@@ -2,16 +2,20 @@ import { GAME_CONFIG } from "../config";
 import { Animal } from "../entities/Animal";
 import { Yard } from "../entities/Yard";
 import type { Position } from "../types/Position";
+import type { GameEvents } from "../types/GameEvents";
+import { EventEmitter } from "../core/EventEmitter";
 
 export class AnimalSpawner {
 	private spawnTimer: number = 0;
 	private nextSpawnTime = this.getRandomSpawnInterval();
 	private fieldWidth: number;
 	private fieldHeight: number;
+	private emitter: EventEmitter<GameEvents>;
 
-	constructor(viewWidth: number, viewHeight: number) {
+	constructor(viewWidth: number, viewHeight: number, emitter: EventEmitter<GameEvents>) {
 		this.fieldWidth = viewWidth;
 		this.fieldHeight = viewHeight;
+		this.emitter = emitter;
 	}
 
 	private getRandomSpawnInterval(): number {
@@ -43,7 +47,7 @@ export class AnimalSpawner {
 			return null;
 		}
 
-		return new Animal(position, yard.contains.bind(yard));
+		return new Animal(position, yard.contains.bind(yard), this.emitter);
 	}
 
 	private getRandomAnimalPosition(heroPosition: Position, animals: Animal[], yard: Yard): Position | null {
