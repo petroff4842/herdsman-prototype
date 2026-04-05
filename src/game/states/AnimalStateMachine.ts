@@ -54,7 +54,6 @@ export class AnimalStateMachine {
 			this.current.enter(animal);
 
 			if (next instanceof FollowingState) {
-				animal.state = 'following';
 				this.emitter.emit('animal:collected', { animal });
 			}
 		}

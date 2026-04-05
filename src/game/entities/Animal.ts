@@ -8,11 +8,8 @@ import { EventEmitter } from "../core/EventEmitter";
 
 type IsInsideYard = (x: number, y: number, padding?: number) => boolean;
 
-export type AnimalState = 'idle' | 'following';
-
 export class Animal {
     public view: Graphics;
-    public state: AnimalState = 'idle';
     private patrolTarget: Position;
     private isInsideYardFn: IsInsideYard;
     private heroPosition: Position;
@@ -33,7 +30,7 @@ export class Animal {
     }
 
     public follow(targetPosition: Position, direction: Vector, index: number, delta: number): void {
-        if (this.state !== 'following') return;
+        if (!this.isFollowing) return;
 
         const spacing = GAME_CONFIG.animal.followSpacing;
 
@@ -62,7 +59,7 @@ export class Animal {
     public update(delta: number, avoidHeroPosition: Position, isHeroFull: boolean): void {
         this.heroPosition = avoidHeroPosition;
         this.isHeroFull = isHeroFull;
-        if (this.state !== 'idle') {
+        if (this.isFollowing) {
             return;
         }
         this.stateMachine.update(this, delta);
@@ -118,5 +115,9 @@ export class Animal {
 
     getHeroPosition(): Position {
         return this.heroPosition;
+    }
+
+    get isFollowing(): boolean {
+        return this.stateMachine.stateName === 'FollowingState';
     }
 }
